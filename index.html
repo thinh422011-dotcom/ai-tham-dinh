@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trợ Lý Mua Sắm Thông Minh AI</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 580px; margin: 30px auto; padding: 20px; background: #f0f4f8; position: relative; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-top: 15px; }
+        h2 { text-align: center; color: #1e293b; margin-top: 10px; }
+        
+        /* Đồng hồ bấm giờ góc trên bên trái */
+        #timer-box {
+            position: fixed;
+            top: 0px;
+            left: -25px;
+            width: 300px;
+            height: 100px;
+            background-image: url("images/dong-ho.png.png");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100000;
+        }
+
+        #timer {
+            color: #fffefe;
+            font-size: 18px;
+            font-weight: bold;
+            font-family: 'Lexend', monospace;
+            letter-spacing: 2px;
+            margin-top: 1px;
+            margin-left: 29px;
+        }
+
+        label { font-weight: 600; margin-top: 14px; display: block; color: #334155; }
+        input, select, textarea { width: 100%; padding: 11px; margin-top: 6px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #2563eb; }
+        button { width: 100%; padding: 13px; background: #2563eb; color: rgb(255, 255, 255); border: none; border-radius: 8px; font-size: 16px; margin-top: 20px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        button:hover { background: #1d4ed8; }
+        button:disabled { background: #94a3b8; cursor: not-allowed; }
+        #statusCheck { text-align: center; font-size: 13px; margin-bottom: 15px; font-weight: bold; }
+        #result { margin-top: 20px; display: none; border-top: 4px solid #2563eb; }
+        
+        /* Trang trí cho hộp thông tin bóc tách giá trị */
+        .badge-box { background: #f1f5f9; border-left: 4px solid #0284c7; padding: 12px; margin: 15px 0; border-radius: 4px; }
+        .trap-box { background: #fff7ed; border-left: 4px solid #ea580c; padding: 12px; margin: 15px 0; border-radius: 4px; color: #9a3412; }
+        .error-box { background: #fef2f2; border: 1px solid #fca5a5; color: #b91c1c; padding: 12px; border-radius: 8px; margin-top: 15px; display: none; font-size: 14px; }
+        ul { padding-left: 20px; color: #475569; }
+        li { margin-bottom: 8px; line-height: 1.4; }
+        
+        #customNeedContainer { display: none; margin-top: 8px; }
+
+        /* Giao diện cho thang đo đánh giá tâm lý */
+        .ibts-section { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px; border-radius: 12px; margin-top: 20px; }
+        .ibts-question { font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #166534; }
+        .slider-container { display: flex; align-items: center; gap: 10px; margin: 10px 0; }
+        .slider-label { font-size: 12px; color: #475569; flex-shrink: 0; font-weight: 500; }
+        input[type=range] { flex-grow: 1; accent-color: #2563eb; cursor: pointer; }
+        .slider-value-display { text-align: center; font-weight: bold; color: #2563eb; font-size: 14px; margin-bottom: 15px; }
+
+        /* Giao diện Overlay đếm ngược WAIT-10 */
+        #waitOverlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .wait-box {
+            background: #1e293b;
+            border: 2px solid #38bdf8;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .wait-timer {
+            font-size: 48px;
+            font-weight: bold;
+            color: #f59e0b;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+        }
+        .wait-question {
+            font-size: 16px;
+            font-style: italic;
+            color: #e2e8f0;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Khung đồng hồ dùng ảnh thiết kế -->
+    <div id="timer-box">
+        <span id="timer">10:00</span>
+    </div>
+
+    <div class="card">
+        <h2>🛍️ AI Thẩm Định Giá Mua Sắm</h2>
+        <div id="statusCheck">Đang kiểm tra kết nối tới Server Python...</div>
+        
+        <label>Tên sản phẩm: <span style="color:red">*</span></label>
+        <input type="text" id="name" placeholder="Ví dụ: iPhone 13 128GB">
+
+        <label>Link sản phẩm (Không bắt buộc):</label>
+        <input type="url" id="product_url" placeholder="https://shopee.vn/... hoặc https://chotot.com/...">
+
+        <label>Giá người bán đưa ra (VNĐ): <span style="color:red">*</span></label>
+        <input type="text" id="price" placeholder="Ví dụ: 9.500.000" oninput="formatPriceInput(this)">
+
+        <label>Tình trạng sản phẩm:</label>
+        <select id="condition">
+            <option value="Mới 100%">Mới 100% (Nguyên seal)</option>
+            <option value="Cũ 99%">Cũ 99% / Lướt</option>
+            <option value="Cũ trầy xước">Cũ trầy xước / Đã qua sửa chữa</option>
+        </select>
+
+        <label>Mục đích sử dụng:</label>
+        <select id="needSelect" onchange="toggleNeedInput(this)">
+            <option value="Học tập & Làm việc văn phòng cơ bản">Học tập & Làm việc văn phòng cơ bản</option>
+            <option value="Chơi game & Giải trí cấu hình cao">Chơi game & Giải trí cấu hình cao</option>
+            <option value="Quay phim, chụp ảnh & Sáng tạo nội dung">Quay phim, chụp ảnh & Sáng tạo nội dung</option>
+            <option value="Sử dụng lâu dài 2-3 năm tới">Sử dụng lâu dài 2-3 năm tới</option>
+            <option value="Mua về bán lại / Kinh doanh">Mua về bán lại / Kinh doanh</option>
+            <option value="Khác">Khác (Tự nhập nhu cầu...)</option>
+        </select>
+
+        <div id="customNeedContainer">
+            <textarea id="customNeed" rows="2" placeholder="Nhập chi tiết nhu cầu sử dụng của bạn..."></textarea>
+        </div>
+
+        <!-- Bấm nút sẽ gọi hàm kích hoạt WAIT-10 trước -->
+        <button id="btn" onclick="startWait10Nudge()">Phân Tích Ngay</button>
+
+        <div id="errorBox" class="error-box"></div>
+
+        <div id="result" class="card">
+            <h3 style="margin-top:0; color:#1e293b;">Kết Quả Thẩm Định:</h3>
+            
+            <!-- Khung 1: Quy đổi giá trị thực -->
+            <div class="badge-box">
+                <b>💡 Quy đổi giá trị thực:</b>
+                <p id="equivalentComparison" style="margin: 5px 0 0 0;"></p>
+            </div>
+
+            <!-- Khung 2: Bóc tách bẫy KOL & Bao bì -->
+            <div class="trap-box">
+                <b>⚠️ Bóc tách bẫy KOL & Bao bì:</b>
+                <p id="valueTrap" style="margin: 5px 0 0 0;"></p>
+            </div>
+
+            <p><strong>Giá trị thực ước tính:</strong> <br><span id="realValue" style="color: #d97706; font-weight: bold; font-size: 18px;"></span></p>
+            <p><strong>Đánh giá giá bán:</strong> <span id="status" style="color: #2563eb; font-weight: bold;"></span></p>
+            <p><strong>Khuyến nghị:</strong> <span id="recommendation" style="color: #16a34a; font-weight: bold;"></span></p>
+            
+            <h4 style="margin-bottom:6px; color:#1e293b;">📌 Lý do đánh giá từ AI:</h4>
+            <ul id="reasons"></ul>
+
+            <h4 style="margin-bottom:6px; color:#1e293b;">💡 Gợi ý & Đánh giá chuyên sâu:</h4>
+            <ul id="suggestions"></ul>
+
+            <h4 style="margin-bottom:6px; color:#1e293b;">📝 Lời khuyên tổng quan:</h4>
+            <div id="buyingTips" style="background:#f8fafc; padding:12px; border-left:4px solid #2563eb; border-radius:6px; font-size:14px; line-height:1.5;"></div>
+
+            <!-- Khung 3: Thang đo đánh giá tâm lý IBTS -->
+            <div class="ibts-section" id="ibtsSection">
+                <h4 style="margin: 0 0 15px 0; color: #15803d;">🧠 Đánh giá lại cảm xúc của bạn</h4>
+                
+                <!-- Câu hỏi 1: Mức độ thôi thúc (1-10) -->
+                <div class="ibts-question">1. Ngay lúc này, mức độ thôi thúc muốn "chốt đơn" món đồ này của bạn là bao nhiêu?</div>
+                <div class="slider-container">
+                    <span class="slider-label">Rất thấp (1)</span>
+                    <input type="range" id="urgeSlider" min="1" max="10" value="5" oninput="updateUrge(this.value)">
+                    <span class="slider-label">Rất muốn mua (10)</span>
+                </div>
+                <div class="slider-value-display">
+                    Điểm: <span id="urgeValue">5</span> / 10 
+                    <br>
+                    <span id="urgeText" style="color: #ea580c; font-size: 16px;">Trung bình</span>
+                </div>
+
+                <!-- Câu hỏi 2: Độ cần thiết (1-5) -->
+                <div class="ibts-question" style="margin-top: 20px;">2. Sau khi xem phân tích của AI, bạn đánh giá độ CẦN THIẾT của món đồ này đối với bạn như thế nào?</div>
+                <div class="slider-container">
+                    <span class="slider-label">Hoàn toàn không (1)</span>
+                    <input type="range" id="needSlider" min="1" max="5" value="3" oninput="updateNeed(this.value)">
+                    <span class="slider-label">Rất cần thiết (5)</span>
+                </div>
+                <div class="slider-value-display">
+                    Điểm: <span id="needValue">3</span> / 5 
+                    <br>
+                    <span id="needText" style="color: #ea580c; font-size: 16px;">Bình thường</span>
+                </div>
+
+                <button id="submitIbtsBtn" style="background: #166534; margin-top: 10px; width: 100%; color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;" onclick="submitIBTS()">Xác Nhận & Kết Thúc</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Màn hình chờ WAIT-10 -->
+    <div id="waitOverlay">
+        <div class="wait-box">
+            <h3 style="margin: 0; color: #38bdf8;">⏳ Khoảng dừng tâm lý (WAIT-10)</h3>
+            <div class="wait-timer" id="countdownNumber">10</div>
+            <p class="wait-question">"Bạn đang thực sự cần nó hay chỉ vì video vừa rồi quá cuốn?"</p>
+            <p style="font-size: 13px; color: #94a3b8; margin-top: 15px;">Hãy hít một hơi thật sâu và suy nghĩ trong giây lát...</p>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '';  // cùng domain với server
+
+        // 1. ĐỒNG HỒ BẤM GIỜ 10 PHÚT
+        let timeLeft = 600;
+        const timerElement = document.getElementById('timer');
+        
+        const countdown = setInterval(() => {
+            let minutes = Math.floor(timeLeft / 60);
+            let seconds = timeLeft % 60;
+            seconds = seconds < 10 ? '0' + seconds : seconds;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            
+            timerElement.innerText = `${minutes}:${seconds}`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                timerElement.innerText = "00:00";
+                timerElement.style.color = "#ef4444";
+            }
+            timeLeft--;
+        }, 1000);
+
+        // 2. TỰ ĐỘNG THÊM DẤU CHẤM CÁCH MỖI 3 SỐ KHI VIẾT GIÁ TIỀN
+        function formatPriceInput(input) {
+            let value = input.value.replace(/\D/g, ''); 
+            if (value) {
+                input.value = new Intl.NumberFormat('vi-VN').format(value);
+            } else {
+                input.value = '';
+            }
+        }
+
+        // 3. TỰ ĐỘNG ẨN/HIỆN Ô NHẬP MỤC ĐÍCH KHÁC
+        function toggleNeedInput(select) {
+            const container = document.getElementById('customNeedContainer');
+            if (select.value === 'Khác') {
+                container.style.display = 'block';
+            } else {
+                container.style.display = 'none';
+            }
+        }
+
+        // KIỂM TRA KẾT NỐI SERVER
+        window.onload = async function() {
+            const statusDiv = document.getElementById('statusCheck');
+            try {
+                const res = await fetch(API_URL + '/health');
+                if (res.ok) {
+                    statusDiv.style.color = '#16a34a';
+                    statusDiv.innerText = '🟢 Đã kết nối thành công tới Server Backend!';
+                }
+            } catch (err) {
+                statusDiv.style.color = '#dc2626';
+                statusDiv.innerText = '🔴 Chưa kết nối được Server Python! Vui lòng thử tải lại trang sau ít phút.';
+            }
+        };
+
+        // 4. KÍCH HOẠT WAIT-10 KHI BẤM PHÂN TÍCH
+        function startWait10Nudge() {
+            const name = document.getElementById('name').value.trim();
+            const price = document.getElementById('price').value.trim();
+
+            if (!name || !price) {
+                alert('Vui lòng nhập Tên sản phẩm và Giá tiền!');
+                return;
+            }
+
+            const overlay = document.getElementById('waitOverlay');
+            const timerDisplay = document.getElementById('countdownNumber');
+            overlay.style.display = 'flex';
+
+            let waitTime = 10;
+            timerDisplay.innerText = waitTime;
+
+            const waitInterval = setInterval(() => {
+                waitTime--;
+                timerDisplay.innerText = waitTime;
+
+                if (waitTime <= 0) {
+                    clearInterval(waitInterval);
+                    overlay.style.display = 'none';
+                    analyzePrice(); // Hết 10s mới gọi API thật
+                }
+            }, 1000);
+        }
+
+        // 5. GỬI PHÂN TÍCH ĐẾN BACKEND
+        async function analyzePrice() {
+            const btn = document.getElementById("btn");
+            const errorBox = document.getElementById("errorBox");
+            const resultBox = document.getElementById("result");
+
+            errorBox.style.display = 'none';
+            resultBox.style.display = 'none';
+
+            const name = document.getElementById('name').value.trim();
+            const product_url = document.getElementById('product_url').value.trim();
+            const price = document.getElementById('price').value.trim();
+            const condition = document.getElementById('condition').value;
+            
+            const needSelect = document.getElementById('needSelect').value;
+            let need = needSelect;
+            if (needSelect === 'Khác') {
+                need = document.getElementById('customNeed').value.trim();
+            }
+
+            btn.innerText = "⏳ AI đang phân tích dữ liệu...";
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(API_URL + '/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        product_name: name,
+                        product_url: product_url || null,
+                        listed_price: price,
+                        condition: condition,
+                        user_need: need
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.detail || 'Có lỗi xảy ra từ máy chủ!');
+                }
+
+                // Đổ dữ liệu trả về từ AI
+                document.getElementById('equivalentComparison').innerText = data.equivalent_comparison || '';
+                document.getElementById('valueTrap').innerText = data.value_trap || '';
+                document.getElementById('realValue').innerText = data.real_value || '';
+                document.getElementById('status').innerText = data.status || '';
+                document.getElementById('recommendation').innerText = data.recommendation || '';
+
+                const reasonsList = document.getElementById('reasons');
+                reasonsList.innerHTML = '';
+                if (data.reasons) {
+                    data.reasons.forEach(r => {
+                        let li = document.createElement('li');
+                        li.innerText = r;
+                        reasonsList.appendChild(li);
+                    });
+                }
+
+                const suggestionsList = document.getElementById('suggestions');
+                suggestionsList.innerHTML = '';
+                if (data.suggestions) {
+                    data.suggestions.forEach(s => {
+                        let li = document.createElement('li');
+                        li.innerText = s;
+                        suggestionsList.appendChild(li);
+                    });
+                }
+
+                document.getElementById('buyingTips').innerText = data.buying_tips || '';
+
+                resultBox.style.display = 'block';
+
+            } catch (err) {
+                errorBox.innerText = '⚠️ Lỗi: ' + err.message;
+                errorBox.style.display = 'block';
+            } finally {
+                btn.innerText = "Phân Tích Ngay";
+                btn.disabled = false;
+            }
+        }
+
+        // 6. CẬP NHẬT CHỮ ĐỘNG CHO IBTS
+        function updateUrge(value) {
+            document.getElementById('urgeValue').innerText = value;
+            let text = "";
+            let val = parseInt(value);
+            if (val <= 2) text = "Rất thấp";
+            else if (val <= 4) text = "Thấp";
+            else if (val <= 6) text = "Trung bình";
+            else if (val <= 8) text = "Khá muốn mua";
+            else text = "Cực kỳ muốn mua";
+            
+            document.getElementById('urgeText').innerText = text;
+        }
+
+        function updateNeed(value) {
+            document.getElementById('needValue').innerText = value;
+            let text = "";
+            let val = parseInt(value);
+            if (val === 1) text = "Hoàn toàn không cần";
+            else if (val === 2) text = "Ít cần thiết";
+            else if (val === 3) text = "Bình thường";
+            else if (val === 4) text = "Cần thiết";
+            else text = "Rất cần thiết";
+            
+            document.getElementById('needText').innerText = text;
+        }
+
+        // 7. XÁC NHẬN & KHÓA THANG ĐO IBTS
+        function submitIBTS() {
+            alert("Cảm ơn bạn! Hệ thống đã ghi nhận đánh giá để đo lường chỉ số kiểm soát chi tiêu của bạn.");
+            
+            document.getElementById('ibtsSection').style.background = '#e2e8f0';
+            document.getElementById('ibtsSection').style.borderColor = '#cbd5e1';
+            
+            document.getElementById('urgeSlider').disabled = true;
+            document.getElementById('needSlider').disabled = true;
+            
+            const btn = document.getElementById('submitIbtsBtn');
+            btn.disabled = true;
+            btn.innerText = "Đã Ghi Nhận Đánh Giá";
+            btn.style.background = '#94a3b8';
+            btn.style.cursor = 'not-allowed';
+        }
+    </script>
+</body>
+</html>
