@@ -19,7 +19,7 @@
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{
-  margin:0; padding:84px 16px 40px; color:var(--ink); font-family:var(--body); line-height:1.55;
+  margin:0; padding:132px 16px 40px; color:var(--ink); font-family:var(--body); line-height:1.55;
   background-color:var(--cream);
   background-image:
     radial-gradient(circle at 15% 8%,rgba(212,175,55,.16),transparent 42%),
@@ -28,20 +28,20 @@ body{
   background-attachment:fixed;
 }
 
-/* ===== Đồng hồ kiểu đồng hồ quả quýt (góc trên bên trái) ===== */
-#timer-box{position:fixed; top:12px; left:12px; z-index:1000; width:76px; height:86px; display:flex; flex-direction:column; align-items:center}
-#timer-box::before{content:""; width:18px; height:10px; background:linear-gradient(#e6c65a,#9c7416); border-radius:4px 4px 0 0; box-shadow:0 0 0 1px var(--gold-d)}
+/* ===== Đồng hồ quả quýt (góc trên bên trái) - mặt tối, chữ vàng sáng ===== */
+#timer-box{position:fixed; top:10px; left:10px; z-index:1000; width:104px; height:118px; display:flex; flex-direction:column; align-items:center; filter:drop-shadow(0 6px 10px rgba(60,40,5,.4))}
+#timer-box::before{content:""; width:24px; height:13px; background:linear-gradient(#f0d36a,#9c7416); border-radius:5px 5px 0 0; box-shadow:0 0 0 1.5px var(--gold-d)}
 .clock-ring{
-  --p:100; width:72px; height:72px; border-radius:50%; padding:5px; margin-top:-1px;
-  background:conic-gradient(var(--gold-l) calc(var(--p)*1%),#eadfc0 0);
-  box-shadow:0 6px 14px rgba(90,60,10,.28), 0 0 0 2px var(--gold-d);
+  --p:100; width:100px; height:100px; border-radius:50%; padding:7px; margin-top:-1px;
+  background:conic-gradient(#f5d65c calc(var(--p)*1%),#6e5421 0);
+  box-shadow:0 0 0 3px var(--gold-d),0 0 0 5px #f1e3b0;
 }
 .clock-face{
   width:100%; height:100%; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center;
-  background:radial-gradient(circle,#fffdf3 55%,#f4e8c4); border:1px solid var(--gold-d);
+  background:radial-gradient(circle,#3a2b15 0,#1f170b 100%); border:2px solid #f5d65c;
 }
-#timer{font-family:var(--serif); font-weight:700; font-size:16px; color:var(--ink); letter-spacing:.5px; line-height:1}
-.clock-face small{font-size:7.5px; letter-spacing:1.5px; color:var(--gold-d); margin-top:3px; font-weight:600}
+#timer{font-family:var(--serif); font-weight:800; font-size:24px; color:#fbe9a6; letter-spacing:.5px; line-height:1; text-shadow:0 0 8px rgba(245,214,92,.45)}
+.clock-face small{font-size:9px; letter-spacing:2px; color:#f5d65c; margin-top:5px; font-weight:700}
 
 /* ===== Khung chính ===== */
 .wrap{max-width:620px; margin:0 auto}
@@ -61,7 +61,7 @@ h2{font-family:var(--serif); font-weight:800; font-size:30px; line-height:1.2; m
 .divider::before,.divider::after{content:""; flex:1; height:1px; background:linear-gradient(90deg,transparent,var(--gold-l))}
 .divider::after{background:linear-gradient(270deg,transparent,var(--gold-l))}
 .tagline{margin:0 0 4px; font-style:italic; color:var(--muted); font-size:14px; text-align:center}
-#statusCheck{text-align:center; font-size:13px; margin:10px 0 6px; font-weight:600}
+#statusCheck{text-align:center; font-size:12.5px; margin:10px 0 6px; font-style:italic; letter-spacing:.4px; color:var(--gold-d)}
 
 label{display:block; margin-top:16px; font-family:var(--serif); font-weight:700; font-size:14px; letter-spacing:.3px; color:var(--gold-d)}
 input,select,textarea{
@@ -136,13 +136,15 @@ input[type=range]{flex:1; margin:0; padding:0; border:0; box-shadow:none; backgr
 .wait-track{height:4px; background:#43351c; border-radius:4px; overflow:hidden}
 #waitBar{height:100%; width:100%; background:linear-gradient(90deg,var(--gold),#f0c94a); transition:width 10s linear}
 
+@media (min-width:900px){body{padding-top:44px}}
+
 /* ===== Điện thoại ===== */
 @media (max-width:520px){
-  body{padding:80px 10px 32px}
+  body{padding:112px 10px 32px}
   .card{padding:30px 16px 24px; margin:6px 4px}
   h2{font-size:24px}
   .tagline{font-size:13px}
-  #timer-box{top:8px; left:8px; transform:scale(.88); transform-origin:top left}
+  #timer-box{top:8px; left:8px; transform:scale(.82); transform-origin:top left}
   #result{padding:18px 12px}
   .slider-container{flex-wrap:wrap; justify-content:space-between}
   input[type=range]{order:-1; flex:1 0 100%}
@@ -166,7 +168,7 @@ input[type=range]{flex:1; margin:0; padding:0; border:0; box-shadow:none; backgr
     <div class="divider">❖</div>
     <p class="tagline">Người cố vấn điềm tĩnh, giúp bạn nhìn đúng giá trị thật trước khi chốt đơn</p>
   </div>
-  <div id="statusCheck">Đang kiểm tra kết nối tới Server Python...</div>
+  <div id="statusCheck">✦ Đang thắp đèn trong cửa hiệu… ✦</div>
 
   <label>Tên sản phẩm <span style="color:var(--rust)">*</span></label>
   <input type="text" id="name" placeholder="Ví dụ: iPhone 13 128GB">
@@ -279,7 +281,7 @@ const clockTimer = setInterval(() => {
   $('clockRing').style.setProperty('--p', (timeLeft / 600) * 100);
   if (timeLeft <= 0) {
     clearInterval(clockTimer);
-    $('timer').style.color = '#9b3b2a';
+    $('timer').style.color = '#ff8a75';
   }
   timeLeft--;
 }, 1000);
@@ -300,10 +302,10 @@ window.onload = async function () {
   const el = $('statusCheck');
   try {
     const res = await fetch(API_URL + '/health');
-    if (res.ok) { el.style.color = '#4d6b3a'; el.innerText = '🟢 Đã kết nối thành công tới Server Backend!'; }
+    if (res.ok) { el.style.color = '#8a6414'; el.innerText = '✦ Cửa hiệu đã mở cửa, kính mời quý khách ✦'; }
   } catch (e) {
     el.style.color = '#9b3b2a';
-    el.innerText = '🔴 Chưa kết nối được Server Python! Vui lòng thử tải lại trang sau ít phút.';
+    el.innerText = '✦ Cửa hiệu tạm đóng cửa, xin quý khách quay lại sau ít phút ✦';
   }
 };
 
@@ -329,19 +331,38 @@ function showNudge(q) {
   el.classList.add('fade');
 }
 
-async function loadNudge(name, need) {
+/* Nạp sẵn câu hỏi từ AI ngay khi mở trang (và sau mỗi lần dùng) để pop-up hiện tức thì */
+let stash = '';          // câu hỏi đã nạp sẵn
+let stashPromise = null; // yêu cầu đang chạy
+function prefetchNudge() {
+  if (stash || stashPromise) return stashPromise;
+  const ctx = { product_name: $('name').value.trim(), user_need: getNeed(), avoid: getRecent() };
+  stashPromise = (async () => {
+    try {
+      const ctl = new AbortController();
+      const t = setTimeout(() => ctl.abort(), 20000);
+      const res = await fetch(API_URL + '/api/nudge', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctl.signal, body: JSON.stringify(ctx)
+      });
+      clearTimeout(t);
+      if (res.ok) {
+        const q = ((await res.json()).question || '').trim();
+        if (q && !getRecent().includes(q)) stash = q;
+      }
+    } catch (e) { /* bỏ qua, sẽ dùng câu dự phòng */ }
+    stashPromise = null;
+  })();
+  return stashPromise;
+}
+window.addEventListener('load', () => setTimeout(prefetchNudge, 300));
+$('name').addEventListener('change', () => { if (!stash) prefetchNudge(); });
+
+async function loadNudge() {
+  // 1) Có sẵn thì hiện ngay; 2) chưa có thì chờ tối đa 2,5 giây; 3) vẫn chưa có thì dùng câu dự phòng
+  if (!stash && stashPromise) await Promise.race([stashPromise, new Promise(r => setTimeout(r, 2500))]);
   const recent = getRecent();
-  let q = '';
-  try {
-    const ctl = new AbortController();
-    const t = setTimeout(() => ctl.abort(), 7000);
-    const res = await fetch(API_URL + '/api/nudge', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctl.signal,
-      body: JSON.stringify({ product_name: name, user_need: need, avoid: recent })
-    });
-    clearTimeout(t);
-    if (res.ok) q = ((await res.json()).question || '').trim();
-  } catch (e) { /* dùng câu dự phòng */ }
+  let q = stash;
+  stash = '';
   if (!q) {
     const pool = FALLBACK_NUDGES.filter(x => !recent.includes(x));
     const list = pool.length ? pool : FALLBACK_NUDGES;
@@ -349,6 +370,7 @@ async function loadNudge(name, need) {
   }
   pushRecent(q);
   showNudge(q);
+  setTimeout(prefetchNudge, 1500); // nạp sẵn câu cho lần sau
 }
 
 /* 5. BẤM PHÂN TÍCH: pop-up hiện ngay, AI phân tích chạy song song bên dưới */
@@ -385,7 +407,7 @@ function startWait10Nudge() {
   num.innerText = 10;
 
   // Chạy song song: câu hỏi AI + phân tích giá
-  loadNudge(name, need);
+  loadNudge();
   const analysis = analyzePrice(name, need);
 
   const countdown = new Promise(resolve => {
